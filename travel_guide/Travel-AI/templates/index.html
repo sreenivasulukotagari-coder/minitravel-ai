@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Travel Guide AI</title>
+
+<style>
+body{
+  margin:0;
+  background:linear-gradient(135deg,#0ea5e9,#22c55e);
+  font-family:Arial;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+.app{
+  width:100%;
+  max-width:420px;
+  height:90vh;
+  background:white;
+  border-radius:18px;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+.header{
+  background:#10b981;
+  color:white;
+  padding:14px;
+  text-align:center;
+  font-weight:bold;
+}
+#chat{
+  flex:1;
+  padding:12px;
+  overflow-y:auto;
+}
+.msg{
+  margin-bottom:12px;
+  padding:10px 14px;
+  border-radius:14px;
+  max-width:85%;
+  white-space:pre-line;
+}
+.user{background:#dbeafe;margin-left:auto}
+.bot{background:#f3f4f6}
+.input{
+  display:flex;
+  gap:6px;
+  padding:10px;
+}
+input{
+  flex:1;
+  padding:10px;
+  border-radius:12px;
+  border:1px solid #ddd;
+}
+button{
+  border:none;
+  background:#10b981;
+  color:white;
+  border-radius:12px;
+  padding:0 14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+  <div class="header">🌍 Smart Travel Guide AI</div>
+  <div id="chat"></div>
+
+  <div class="input">
+    <input id="input" placeholder="Type hi to start..." />
+    <button onclick="voice()">🎤</button>
+    <button onclick="send()">Send</button>
+  </div>
+</div>
+
+<script>
+let step=0, state="", budget="";
+
+function add(text,cls){
+  let d=document.createElement("div");
+  d.className="msg "+cls;
+  d.innerText=text;
+  chat.appendChild(d);
+  chat.scrollTop=chat.scrollHeight;
+}
+
+function send(){
+  let text=input.value;
+  if(!text) return;
+  add(text,"user");
+  input.value="";
+
+  fetch("/chat",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({text,step,state,budget})
+  })
+  .then(r=>r.json())
+  .then(d=>{
+    add(d.reply,"bot");
+    step=d.step;
+    if(d.state) state=d.state;
+    if(d.budget) budget=d.budget;
+  });
+}
+
+function voice(){
+  let SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){alert("Voice not supported");return;}
+  let r=new SR();
+  r.lang="en-IN";
+  r.start();
+  r.onresult=e=>{
+    input.value=e.results[0][0].transcript;
+    send();
+  };
+}
+</script>
+
+</body>
+</html>
