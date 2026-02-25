@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mini Web Service</title>
+</head>
+<body style="font-family:Arial;text-align:center;margin-top:60px;">
+
+<h2>Mini Travel Guide (Web Service)</h2>
+
+<input id="t" placeholder="family / friends / solo">
+<button onclick="send()">Send</button>
+
+<p id="r"></p>
+
+<script>
+function send(){
+  let v = document.getElementById("t").value;
+  fetch("/chat?msg=" + v)
+    .then(r => r.text())
+    .then(d => document.getElementById("r").innerText = d);
+}
+</script>
+
+</body>
+</html>
